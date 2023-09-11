@@ -5,7 +5,7 @@ baseurl:
 date_format: "ordinal"
 title: L+1
 subtitle: "个人博客"
-description: "马壮的个人博客，公众号：闷骚的程序员"
+description: ""
 keywords: 
 timezone: Asia/Shanghai
 encoding: "utf-8"
@@ -38,7 +38,7 @@ components:
     # 页面右上角，以及「关于」页面的二维码
     # 修改图片请替换 assets/images/qrcode.jpg
     qrcode:
-        enabled: true
+        enabled: false
         image_alt: 闷骚的程序员
     # 维基索引页使用哪种视图，支持 列表（list）/分类（cate）
     wiki:
@@ -74,24 +74,6 @@ navs:
   -
     href: /categories/
     label: 分类
-
-  -
-    href: /archives/
-    label: 归档
-    mobile-hidden: true
-
-  -
-    href: /open-source/
-    label: 开源
-    mobile-hidden: true
-
-  -
-    href: /fragments/
-    label: 片段
-
-  -
-    href: /wiki/
-    label: 维基
 
   -
     href: /links/
