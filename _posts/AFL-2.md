@@ -1,7 +1,9 @@
 ---
-title: AFL-2
-date: 2023-08-09 13:54:45
-tags:
+layout: post
+title: AFL2
+categories: Algorithm
+description: Fuzzing-2
+keywords: 工具
 ---
 
 exercise-2
