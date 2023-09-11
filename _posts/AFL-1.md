@@ -1,6 +1,9 @@
 ---
-title: AFL-1
-date: 2023-07-31 13:22:29
+layout: post
+title: AFL1
+categories: Algorithm
+description: Fuzzing-1
+keywords: 工具
 ---
 
 ## 01 实验过程
