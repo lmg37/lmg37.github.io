@@ -1,0 +1,180 @@
+---
+title: AFL-2
+date: 2023-08-09 13:54:45
+tags:
+---
+
+exercise-2
+
+libexif 
+
+## 01 实验过程
+
+### 0x1.构建并安装 libexif
+
+```
+cd libexif-libexif-0_6_14-release/
+sudo apt-get install autopoint libtool gettext libpopt-dev
+autoreconf -fvi
+./configure --enable-shared=no --prefix="$HOME/fuzzing_libexif/install/"
+make
+make install
+```
+
+autoreconf -fvi 在软件项目中重新生成自动配置（Autoconf）和构建系统相关文件的命令
+
+### 0x2 构建并安装 exif 命令行实用程序
+
+检查是否成功
+
+```
+$HOME/fuzzing_libexif/install/bin/exif
+```
+
+![image-20230809151528275](https://img1.imgtp.com/2023/08/23/MQSTeVzh.png)
+
+进行exif示例创建 结果如下
+
+```
+$HOME/fuzzing_libexif/install/bin/exif $HOME/fuzzing_libexif/exif-samples-master/jpg/Canon_40D_photoshop_import.jpg
+```
+
+![image-20230809152518785](https://img1.imgtp.com/2023/08/23/oulY3Hj7.png)
+
+### 0x3 作为编译器**afl-clang-lto**构建 libexif
+
+`afl-clang-lto` 使用了链接时间优化（Link-Time Optimization，简称LTO）的技术，可以在编译过程中对整个程序进行优化，提高模糊测试的效率和准确性。
+
+![image-20230813204306294](https://img1.imgtp.com/2023/08/23/U8rPe3il.png)
+
+使用eclipse对crashes进行分析
+
+![image-20230823163507701](https://img1.imgtp.com/2023/08/23/7tZX9KFI.png)
+
+## 02 实验心得
+
+### 0x1 代码应用方面
+
+每个实验的文件夹
+
+```
+cd $HOME
+mkdir fuzzing_libexif && cd fuzzing_libexif/
+```
+
+下载并解压 libexif-0.6.14
+
+```
+wget https://github.com/libexif/libexif/archive/refs/tags/libexif-0_6_14-release.tar.gz
+tar -xzvf libexif-0_6_14-release.tar.gz
+```
+
+构建并安装 libexif
+
+```
+cd libexif-libexif-0_6_14-release/
+sudo apt-get install autopoint libtool gettext libpopt-dev
+autoreconf -fvi
+./configure --enable-shared=no --prefix="$HOME/fuzzing_libexif/install/"
+make
+make install
+```
+
+下载并解压缩 exif 命令行
+
+```
+cd $HOME/fuzzing_libexif
+wget https://github.com/libexif/exif/archive/refs/tags/exif-0_6_15-release.tar.gz
+tar -xzvf exif-0_6_15-release.tar.gz
+```
+
+构建并安装 exif 命令行实用程序
+
+```
+cd exif-exif-0_6_15-release/
+autoreconf -fvi
+./configure --enable-shared=no --prefix="$HOME/fuzzing_libexif/install/" PKG_CONFIG_PATH=$HOME/fuzzing_libexif/install/lib/pkgconfig
+make
+make install
+```
+
+测试exif是否安装成功
+
+```
+$HOME/fuzzing_libexif/install/bin/exif
+```
+
+下载示例图像
+
+```
+cd $HOME/fuzzing_libexif
+wget https://github.com/ianare/exif-samples/archive/refs/heads/master.zip
+unzip master.zip
+```
+
+测试运行exif
+
+```
+$HOME/fuzzing_libexif/install/bin/exif $HOME/fuzzing_libexif/exif-samples-master/jpg/Canon_40D_photoshop_import.jpg
+```
+
+使用afl-clang-lto作为编译器来构建 libexif
+
+```
+rm -r $HOME/fuzzing_libexif/install
+cd $HOME/fuzzing_libexif/libexif-libexif-0_6_14-release/
+make clean
+export LLVM_CONFIG="llvm-config-11"
+CC=afl-clang-lto ./configure --enable-shared=no --prefix="$HOME/fuzzing_libexif/install/"
+make
+make install
+```
+
+第一步还是删除之前的下载示例文件，再进行环境变量的配置
+
+```
+cd $HOME/fuzzing_libexif/exif-exif-0_6_15-release
+make clean
+export LLVM_CONFIG="llvm-config-11"
+CC=afl-clang-lto ./configure --enable-shared=no --prefix="$HOME/fuzzing_libexif/install/" PKG_CONFIG_PATH=$HOME/fuzzing_libexif/install/lib/pkgconfig
+make
+make install
+```
+
+与上一步类似
+
+下面进行模糊测试
+
+如果遇到问题同AFL-1的解决方式
+
+```
+afl-fuzz -i $HOME/fuzzing_libexif/exif-samples-master/jpg/ -o $HOME/fuzzing_libexif/out/ -s 123 -- $HOME/fuzzing_libexif/install/bin/exif @@
+```
+
+```
+sudo su
+echo core >/proc/sys/kernel/core_pattern
+exit
+```
+
+core问题
+
+下面检测漏洞
+
+使用 Eclipse-CDT 进行调试
+
+
+
+### 0x2 工具理解方面
+
+1. 本次漏洞出现在 libexif库中，需要exif作为调用它的应用程序，对应用程序进行模糊化。
+
+2. afl-clang-lto与afl-clang-fast区别：
+
+   afl-clang-fast 主要关注提高模糊测试的速度和性能。它通过减少插桩引入的开销以及对生成的代码进行优化，加速模糊测试的执行。
+
+   afl-clang-lto 引入了 LTO（Link-Time Optimization，链接时优化）技术，它会在链接阶段对代码进行优化。这可以带来更大的性能提升，但在编译时可能会引入更多的开销，因为需要在链接之前对整个程序进行分析和优化。
+
+   afl-clang-fast 适用于大多数模糊测试场景，尤其是在**追求快速**的模糊测试执行时。
+
+   afl-clang-lto 适用于那些更关注**性能和优化**，愿意在编译阶段引入更多开销的场景。

