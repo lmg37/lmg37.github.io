@@ -12,7 +12,7 @@ encoding: "utf-8"
 # 页面左下角显示的年份
 since: 2023
 # 源码仓库，请替换成自己的
-repository: lmg37/lmg37.github.io
+repository: https://github.com/lmg37/lmg37.github.io
 # 对 css 和 js 资源的 cdn 加速配置
 cdn:
     jsdelivr:
@@ -56,12 +56,12 @@ highlight_theme: github
 # ---------------- #
 #      Author      #
 # ---------------- #
-author: Zhuang Ma
+author: ljy
 organization: 
 organization_url: 
-github_username: mzlogin
-location: Wuhan, China
-email: chumpma@gmail.com
+github_username: lmg37
+location: QingDao, China
+email: 
 
 # ---------------- #
 #    Navigation    #
