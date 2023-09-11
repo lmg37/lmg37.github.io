@@ -3,7 +3,7 @@ layout: post
 title: AFL-1
 categories: Security
 description: Fuzzing-1
-keywords: 算法，Fibonacci
+keywords: tools
 ---
 
 ## 01 实验过程
